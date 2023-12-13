@@ -2,9 +2,11 @@ import sqlite3
 import datetime
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 import base64
 import gspread
 import numpy as np
+from io import StringIO
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 credentials_json = {
@@ -31,6 +33,73 @@ old_data = pd.DataFrame(all_values[1:], columns=all_values[0])
 expansecategory = old_data['Expense Category'].unique().tolist()
 maintenance_category = old_data['Maintenance Main Category'].unique().tolist()
 old_data_columns=old_data.columns[:22]
+letter = {
+            'A': 'ا',
+            'B': 'ب',
+            'T': 'ط',
+            'G': 'ج',
+            'H': 'ه',
+            'D': 'د',
+            'R': 'ر',
+            'Z': 'ظ',
+            'S': 'س',
+            'C': 'ص',
+            'E': 'ع',
+            'F': 'ف',
+            'K': 'ق',
+            'L': 'ل',
+            'M': 'م',
+            'N': 'ن',
+            'W': 'و',
+            'Y': 'ى',  # Replace ي with ى
+            'أ': 'ا',
+            'ب': 'ب',
+            'ت': 'ت',
+            'ج': 'ج',
+            'ح': 'ح',
+            'د': 'د',
+            'ر': 'ر',
+            'ز': 'ز',
+            'س': 'س',
+            'ص': 'ص',
+            'ض': 'ض',
+            'ط': 'ط',
+            'ظ': 'ظ',
+            'ع': 'ع',
+            'ف': 'ف',
+            'ق': 'ق',
+            'ل': 'ل',
+            'م': 'م',
+            'ن': 'ن',
+            'ه': 'ه',
+            'و': 'و',
+            'ى': 'ي',  # Replace ى with ي
+        }
+
+
+translate = str.maketrans(letter)
+
+def changeletter(x):
+    try:
+        x = x.upper()
+        new_word = x.translate(translate)
+        new_word = new_word.upper()
+        new_word = new_word.replace(' ', '')
+        return new_word
+    except:
+        return x
+def lett_num(x):
+    try:
+        letter = ''.join([i for i in x if (i.isalpha() and (i != 'ـ')and (i != '-'))])
+        number = ''.join([i for i in x if i.isdigit()])
+        letter = letter.replace('', ' ')
+        return letter, number
+    except Exception as e:
+        print(x)
+        return 0
+old_data['plate number']=old_data.iloc[:, 5].apply(changeletter)
+old_data[['Letters', 'Numbers']] = old_data['plate number'].apply(lett_num).apply(pd.Series)
+old_data['new plate number']=old_data['Letters']+old_data['Numbers']
 uploaded_file = st.file_uploader("Choose a file")
 expense_categories = ['Select Category', 'All'] + expansecategory
 
@@ -50,7 +119,7 @@ class OA:
         self.sh = sh
         self.selected_expense = selected_expense
         self.old_data_columns=old_data_columns
-
+        
     def df_(self):
         if uploaded_file is not None:
             xls = pd.ExcelFile(uploaded_file)
@@ -63,6 +132,7 @@ class OA:
             columns = self.old_data_columns.tolist()
             data_with_header = [columns] + df.values.tolist()
             worksheet = sh.get_worksheet(0)
+            worksheet.clear()
             data = df.values.tolist()
             worksheet.update('A1', data_with_header)
             self.df = df
@@ -72,6 +142,73 @@ class OA:
     def merge_df_(self):
         df = self.df
         df.columns=self.old_data_columns
+        letter = {
+            'A': 'ا',
+            'B': 'ب',
+            'T': 'ط',
+            'G': 'ج',
+            'H': 'ه',
+            'D': 'د',
+            'R': 'ر',
+            'Z': 'ظ',
+            'S': 'س',
+            'C': 'ص',
+            'E': 'ع',
+            'F': 'ف',
+            'K': 'ق',
+            'L': 'ل',
+            'M': 'م',
+            'N': 'ن',
+            'W': 'و',
+            'Y': 'ى',  # Replace ي with ى
+            'أ': 'ا',
+            'ب': 'ب',
+            'ت': 'ت',
+            'ج': 'ج',
+            'ح': 'ح',
+            'د': 'د',
+            'ر': 'ر',
+            'ز': 'ز',
+            'س': 'س',
+            'ص': 'ص',
+            'ض': 'ض',
+            'ط': 'ط',
+            'ظ': 'ظ',
+            'ع': 'ع',
+            'ف': 'ف',
+            'ق': 'ق',
+            'ل': 'ل',
+            'م': 'م',
+            'ن': 'ن',
+            'ه': 'ه',
+            'و': 'و',
+            'ى': 'ي',  # Replace ى with ي
+        }
+
+
+        translate = str.maketrans(letter)
+
+        def changeletter(x):
+            try:
+                x = x.upper()
+                new_word = x.translate(translate)
+                new_word = new_word.upper()
+                new_word = new_word.replace(' ', '')
+                return new_word
+            except:
+                return x
+        def lett_num(x):
+            try:
+                letter = ''.join([i for i in x if (i.isalpha() and (i != 'ـ')and (i != '-'))])
+                number = ''.join([i for i in x if i.isdigit()])
+                letter = letter.replace('', ' ')
+                return letter, number
+            except Exception as e:
+                print(x)
+                return 0
+        df['plate number']=df.iloc[:, 5].apply(changeletter)
+        df[['Letters', 'Numbers']] = df['plate number'].apply(lett_num).apply(pd.Series)
+        df['new plate number']=df['Letters']+df['Numbers']
         month_mapping = {
             'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4,
             'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8,
@@ -89,7 +226,7 @@ class OA:
         self.old_data['Day'] = self.old_data['Day'].astype('int')
         df['Date'] = pd.to_datetime(df[['Year', 'Month', 'Day']], format='%Y-%m-%d')
         self.old_data['Date'] = pd.to_datetime(self.old_data[['Year', 'Month', 'Day']], format='%Y-%m-%d')
-        data_need_to_check = pd.merge(df, self.old_data, how='inner', on=[df.columns[5], df.columns[10]])
+        data_need_to_check = pd.merge(df, self.old_data, how='inner', on=['new plate number', df.columns[10]])
         rename_columns = {
             'Date_x': 'old date', 'Date_y': 'New date', 'Area_x': 'Area',
             'Expense-Bearing Branch_x': 'Expense-Bearing Branch', 'Expense Category_x': 'Expense Category',
@@ -98,7 +235,7 @@ class OA:
         }
         data_need_to_check.rename(columns=rename_columns, inplace=True)
         data_need_to_check = data_need_to_check[['old date', 'New date', data_need_to_check.columns[6],
-                                                 data_need_to_check.columns[5], 'Area', 'Expense-Bearing Branch',
+                                                 'new plate number', 'Area', 'Expense-Bearing Branch',
                                                  'Expense Category', 'Maintenance Main Category', 'Quantity old',
                                                  'Net Amount old', 'Quantity new']]
         self.data_need_to_check = data_need_to_check
@@ -110,15 +247,15 @@ class OA:
         if selected_expense == 'Select Category':
             pass
         elif selected_expense == 'All':
-            for car_number in data_need_to_check[data_need_to_check.columns[3]].unique():
+            for car_number in data_need_to_check['new plate number'].unique():
                 st.write(car_number)
-                data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[3]] == car_number)]
+                data = data_need_to_check[data_need_to_check['new plate number'] == car_number]
                 st.dataframe(data)
         else:
-            for car_number in data_need_to_check[data_need_to_check.columns[3]].unique():
+            for car_number in data_need_to_check[data_need_to_check['new plate number']].unique():
                 st.write(car_number)
                 st.write(selected_expense)
-                data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[3]]==car_number) & (data_need_to_check['Expense Category'] == selected_expense)]
+                data = data_need_to_check[([data_need_to_check['new plate number']]==car_number) & (data_need_to_check['Expense Category'] == selected_expense)]
                 if not data.empty:
                     st.dataframe(data,width=900) 
                 else:
@@ -129,16 +266,32 @@ class OA:
         if maintenance_category=='Select Category':
             pass
         elif maintenance_category == 'All':
-            for car_number in data_need_to_check[data_need_to_check.columns[3]].unique():
-                data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[3]] == car_number)]
+            for car_number in data_need_to_check[data_need_to_check['new plate number']].unique():
+                data = data_need_to_check[([data_need_to_check['new plate number']] == car_number)]
                 st.dataframe(data)
         else:
-            for car_number in data_need_to_check[data_need_to_check.columns[3]].unique():
-                data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[3]] == car_number) & (data_need_to_check['Maintenance Main Category'] == maintenance_category)]
+            for car_number in data_need_to_check['new plate number'].unique():
+                data = data_need_to_check[([data_need_to_check['new plate number']]== car_number) & (data_need_to_check['Maintenance Main Category'] == maintenance_category)]
                 if not data.empty:
                     st.dataframe(data)
                 else:
                     pass 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if 'selected_expense' not in st.session_state:
     st.session_state.selected_expense = 'Select Category'
@@ -157,4 +310,3 @@ if update_button:
     obj_oa.display_data_selected_expense() 
 if update_button_maintenance:
     obj_oa.display_data_maintenance_category()
-    
