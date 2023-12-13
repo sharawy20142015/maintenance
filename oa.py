@@ -2,11 +2,9 @@ import sqlite3
 import datetime
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import base64
 import gspread
 import numpy as np
-from io import StringIO
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 credentials_json = {
