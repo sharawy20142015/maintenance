@@ -252,7 +252,7 @@ class OA:
                 data = data_need_to_check[data_need_to_check['new plate number'] == car_number]
                 st.dataframe(data)
         else:
-            for car_number in data_need_to_check[data_need_to_check['new plate number']].unique():
+            for car_number in data_need_to_check['new plate number'].unique():
                 st.write(car_number)
                 st.write(selected_expense)
                 data = data_need_to_check[([data_need_to_check['new plate number']]==car_number) & (data_need_to_check['Expense Category'] == selected_expense)]
@@ -276,21 +276,6 @@ class OA:
                     st.dataframe(data)
                 else:
                     pass 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if 'selected_expense' not in st.session_state:
