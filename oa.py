@@ -133,7 +133,6 @@ class OA:
             data_with_header = [columns] + df.values.tolist()
             worksheet = sh.get_worksheet(0)
             worksheet.clear()
-            data = df.values.tolist()
             worksheet.update('A1', data_with_header)
             self.df = df
             st.write("Excel sheet uploaded to Google Sheet successfully!")
@@ -226,36 +225,31 @@ class OA:
         self.old_data['Day'] = self.old_data['Day'].astype('int')
         df['Date'] = pd.to_datetime(df[['Year', 'Month', 'Day']], format='%Y-%m-%d')
         self.old_data['Date'] = pd.to_datetime(self.old_data[['Year', 'Month', 'Day']], format='%Y-%m-%d')
-        data_need_to_check = pd.merge(df, self.old_data, how='inner', on=['new plate number', df.columns[10]])
-        rename_columns = {
-            'Date_x': 'old date', 'Date_y': 'New date', 'Area_x': 'Area',
-            'Expense-Bearing Branch_x': 'Expense-Bearing Branch', 'Expense Category_x': 'Expense Category',
-            'Quantity_x': 'Quantity old', 'Expense Category_y': 'Expense Category new',
-            'Quantity_y': 'Quantity new', 'Net Amount_x': 'Net Amount old', 'Net Amount_y': 'Net Amount new'
-        }
-        data_need_to_check.rename(columns=rename_columns, inplace=True)
-        data_need_to_check = data_need_to_check[['old date', 'New date', data_need_to_check.columns[6],
-                                                 'new plate number', 'Area', 'Expense-Bearing Branch',
-                                                 'Expense Category', 'Maintenance Main Category', 'Quantity old',
-                                                 'Net Amount old', 'Quantity new']]
-        self.data_need_to_check = data_need_to_check
+        data_need_to_check = pd.concat([self.old_data,df],join='outer')
+        data_need_to_check = data_need_to_check[data_need_to_check[data_need_to_check.columns[5]].isin(df[df.columns[5]].unique())]
+        df['concat'] = df['Date'].dt.strftime('%Y-%m-%d') + df['Expense Category'].astype(str) + df['Maintenance Main Category'].astype(str)
+        data_need_to_check['concat'] = data_need_to_check['Date'].dt.strftime('%Y-%m-%d') + data_need_to_check['Expense Category'].astype(str) + data_need_to_check['Maintenance Main Category'].astype(str)
+        data_need_to_check['kind data'] = np.where(data_need_to_check['concat'].isin(df['concat'].unique()), 'New', 'Old')
+        data_need_to_check = data_need_to_check.drop(['Year', 'Month', 'Day'], axis=1)
+        data_need_to_check = data_need_to_check[['kind data', 'Date'] + [col for col in data_need_to_check.columns if col not in ['Date', 'kind data']]]
+        self.data_need_to_check = data_need_to_check.sort_values(by=['Date'],ascending=True)
 
     def display_data_selected_expense(self):
         selected_expense = self.selected_expense
         data_need_to_check = self.data_need_to_check
         st.write(selected_expense)
         if selected_expense == 'Select Category':
-            pass
+            st.session_state.clear()
         elif selected_expense == 'All':
-            for car_number in data_need_to_check['new plate number'].unique():
+            for car_number in data_need_to_check[data_need_to_check.columns[4]].unique():
                 st.write(car_number)
-                data = data_need_to_check[data_need_to_check['new plate number'] == car_number]
+                data = data_need_to_check[data_need_to_check[data_need_to_check.columns[4]] == car_number]
                 st.dataframe(data)
         else:
-            for car_number in data_need_to_check[data_need_to_check['new plate number']].unique():
+            for car_number in data_need_to_check[data_need_to_check.columns[4]].unique():
                 st.write(car_number)
                 st.write(selected_expense)
-                data = data_need_to_check[([data_need_to_check['new plate number']]==car_number) & (data_need_to_check['Expense Category'] == selected_expense)]
+                data = data_need_to_check[([data_need_to_check[data_need_to_check.columns[4]]]==car_number) & (data_need_to_check['Expense Category'] == selected_expense)]
                 if not data.empty:
                     st.dataframe(data,width=900) 
                 else:
@@ -266,27 +260,16 @@ class OA:
         if maintenance_category=='Select Category':
             pass
         elif maintenance_category == 'All':
-            for car_number in data_need_to_check[data_need_to_check['new plate number']].unique():
-                data = data_need_to_check[([data_need_to_check['new plate number']] == car_number)]
+            for car_number in data_need_to_check[data_need_to_check.columns[4]].unique():
+                data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[4]] == car_number)]
                 st.dataframe(data)
         else:
-            for car_number in data_need_to_check['new plate number'].unique():
-                data = data_need_to_check[([data_need_to_check['new plate number']]== car_number) & (data_need_to_check['Maintenance Main Category'] == maintenance_category)]
+            for car_number in data_need_to_check[data_need_to_check.columns[4]].unique():
+                data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[4]] == car_number)& (data_need_to_check['Maintenance Main Category'] == maintenance_category)]
                 if not data.empty:
                     st.dataframe(data)
                 else:
                     pass 
-
-
-
-
-
-
-
-
-
-
-
 
 
 
