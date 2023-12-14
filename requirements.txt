@@ -3,6 +3,6 @@ streamlit
 plotly
 datetime
 oauth2client
-io
 gspread
 numpy
+openpyxl
