@@ -231,7 +231,7 @@ class OA:
         data_need_to_check['concat'] = data_need_to_check['Date'].dt.strftime('%Y-%m-%d') + data_need_to_check['Expense Category'].astype(str) + data_need_to_check['Maintenance Main Category'].astype(str)
         data_need_to_check['kind data'] = np.where(data_need_to_check['concat'].isin(df['concat'].unique()), 'New', 'Old')
         data_need_to_check = data_need_to_check.drop(['Year', 'Month', 'Day'], axis=1)
-        data_need_to_check = data_need_to_check[['kind data', 'Date','Net Amount'] + [col for col in data_need_to_check.columns if col not in ['concat','new plate number','Amount','VAT 14%','WHT 1% & 3%','Date', 'kind data','Ownership','Service Provider','Invoice No.','plate number','Letters','Numbers','Expense-Bearing Branch','Driver ID','Net Amount']]]                                                                 
+        data_need_to_check = data_need_to_check[['kind data', 'Date','Net Amount','Maintenance Main Category','Notes','Vehicle Type'] + [col for col in data_need_to_check.columns if col not in ['Vehicle Type','Maintenance Main Category','Notes','concat','new plate number','Amount','VAT 14%','WHT 1% & 3%','Date', 'kind data','Ownership','Service Provider','Invoice No.','plate number','Letters','Numbers','Expense-Bearing Branch','Driver ID','Net Amount']]]                                                                 
         self.data_need_to_check = data_need_to_check.sort_values(by=['Date'],ascending=True)
         
 
