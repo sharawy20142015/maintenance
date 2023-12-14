@@ -232,7 +232,8 @@ class OA:
         data_need_to_check['kind data'] = np.where(data_need_to_check['concat'].isin(df['concat'].unique()), 'New', 'Old')
         data_need_to_check = data_need_to_check.drop(['Year', 'Month', 'Day'], axis=1)
         data_need_to_check = data_need_to_check[['kind data', 'Date','Net Amount','Maintenance Main Category','Notes','Vehicle Type'] + [col for col in data_need_to_check.columns if col not in ['Vehicle Type','Maintenance Main Category','Notes','concat','new plate number','Amount','VAT 14%','WHT 1% & 3%','Date', 'kind data','Ownership','Service Provider','Invoice No.','plate number','Letters','Numbers','Expense-Bearing Branch','Driver ID','Net Amount']]]                                                                 
-        self.data_need_to_check = data_need_to_check.sort_values(by=['Date'],ascending=True)
+        self.data_need_to_check = data_need_to_check.sort_values(by=['Date'],ascending=True).set_index('Date')
+        
         
 
     def display_data_selected_expense(self):
@@ -242,17 +243,17 @@ class OA:
         if selected_expense == 'Select Category':
             st.session_state.clear()
         elif selected_expense == 'All':
-            for car_number in data_need_to_check[data_need_to_check.columns[4]].unique():
+            for car_number in data_need_to_check[data_need_to_check.columns[6]].unique():
                 st.write(car_number)
-                data = data_need_to_check[data_need_to_check[data_need_to_check.columns[4]] == car_number]
-                st.dataframe(data)
+                data = data_need_to_check[data_need_to_check[data_need_to_check.columns[6]] == car_number]
+                st.dataframe(data,width=2500) 
         else:
-            for car_number in data_need_to_check[data_need_to_check.columns[4]].unique():
+            for car_number in data_need_to_check[data_need_to_check.columns[6]].unique():
                 st.write(car_number)
                 st.write(selected_expense)
-                data = data_need_to_check[([data_need_to_check[data_need_to_check.columns[4]]]==car_number) & (data_need_to_check['Expense Category'] == selected_expense)]
+                data = data_need_to_check[([data_need_to_check[data_need_to_check.columns[6]]]==car_number) & (data_need_to_check['Expense Category'] == selected_expense)]
                 if not data.empty:
-                    st.dataframe(data,width=900) 
+                    st.dataframe(data,width=2500) 
                 else:
                     pass
     def display_data_maintenance_category(self):
@@ -261,14 +262,14 @@ class OA:
         if maintenance_category=='Select Category':
             pass
         elif maintenance_category == 'All':
-            for car_number in data_need_to_check[data_need_to_check.columns[4]].unique():
-                data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[4]] == car_number)]
-                st.dataframe(data)
+            for car_number in data_need_to_check[data_need_to_check.columns[6]].unique():
+                data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[6]] == car_number)]
+                st.dataframe(data,width=2500) 
         else:
-            for car_number in data_need_to_check[data_need_to_check.columns[4]].unique():
-                data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[4]] == car_number)& (data_need_to_check['Maintenance Main Category'] == maintenance_category)]
+            for car_number in data_need_to_check[data_need_to_check.columns[6]].unique():
+                data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[6]] == car_number)& (data_need_to_check['Maintenance Main Category'] == maintenance_category)]
                 if not data.empty:
-                    st.dataframe(data)
+                    st.dataframe(data,width=2500) 
                 else:
                     pass 
 
