@@ -244,17 +244,18 @@ class OA:
             st.session_state.clear()
         elif selected_expense == 'All':
             for car_number in data_need_to_check[data_need_to_check.columns[6]].unique():
-                st.write(car_number)
                 data = data_need_to_check[data_need_to_check[data_need_to_check.columns[6]] == car_number]
                 if len(data['kind data'].unique())>1:
+                    st.write(car_number)
+                    st.write(selected_expense)
                     st.dataframe(data,width=2500) 
         else:
             for car_number in data_need_to_check[data_need_to_check.columns[6]].unique():
-                st.write(car_number)
-                st.write(selected_expense)
                 data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[6]] == car_number) & (data_need_to_check['Expense Category'] == selected_expense)]
                 if not data.empty:
                     if len(data['kind data'].unique())>1:
+                        st.write(car_number)
+                        st.write(selected_expense)
                         st.dataframe(data,width=2500) 
                 else:
                     pass
@@ -268,11 +269,15 @@ class OA:
                 data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[6]] == car_number)]
                 if len(data['kind data'].unique())>1:
                     st.dataframe(data,width=2500) 
+                    st.write(car_number)
+                    st.write(maintenance_category)
         else:
             for car_number in data_need_to_check[data_need_to_check.columns[6]].unique():
                 data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[6]] == car_number)& (data_need_to_check['Maintenance Main Category'] == maintenance_category)]
                 if not data.empty:
                     if len(data['kind data'].unique())>1:
+                        st.write(car_number)
+                        st.write(maintenance_category)
                         st.dataframe(data,width=2500)  
                 else:
                     pass 
