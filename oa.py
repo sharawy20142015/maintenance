@@ -104,10 +104,10 @@ uploaded_file = st.file_uploader("Choose a file")
 expense_categories = ['Select Category', 'All'] + expansecategory
 
 
+check_same_sheet=st.sidebar.button('Check Sheet')
 
 selected_expense = st.sidebar.selectbox('Expense Category', expense_categories, index=0)
 update_button = st.sidebar.button('Update')
-
 maintenance_category = ['Select Category', 'All'] + maintenance_category
 maintenance_category = st.sidebar.selectbox('Maintenance Category', maintenance_category, index=0)
 update_button_maintenance = st.sidebar.button('Update ')
@@ -281,7 +281,19 @@ class OA:
                         st.dataframe(data,width=2500)  
                 else:
                     pass 
-
+    def check_same_sheet(self):
+        for car in self.df['plate number'].unique():
+            data=self.df[self.df['plate number']==car]
+            category_counts = data['Maintenance Main Category'].value_counts()
+            for category, count in category_counts.items():
+                if count > 1:
+                    data=data[data['Maintenance Main Category']==category]
+                    columns_to_front = ['Date', 'Net Amount', 'Maintenance Main Category', 'Notes', 'Vehicle Type']
+                    remaining_columns = [col for col in data.columns if col not in columns_to_front + ['Vehicle Type', 'Maintenance Main Category', 'Notes', 'concat', 'new plate number', 'Amount', 'VAT 14%', 'WHT 1% & 3%', 'Date', 'kind data', 'Ownership', 'Service Provider', 'Invoice No.', 'plate number', 'Letters', 'Numbers', 'Expense-Bearing Branch', 'Driver ID', 'Net Amount']]
+                    data = data[columns_to_front + remaining_columns]
+                    if not data.empty:
+                            st.dataframe(data)
+                                    
 
 
 
@@ -304,3 +316,5 @@ if update_button:
     obj_oa.display_data_selected_expense() 
 if update_button_maintenance:
     obj_oa.display_data_maintenance_category()
+if check_same_sheet:
+    obj_oa.check_same_sheet()
