@@ -252,7 +252,7 @@ class OA:
             for car_number in data_need_to_check[data_need_to_check.columns[6]].unique():
                 st.write(car_number)
                 st.write(selected_expense)
-                data = data_need_to_check[([data_need_to_check[data_need_to_check.columns[6]]]==car_number) & (data_need_to_check['Expense Category'] == selected_expense)]
+                data = data_need_to_check[(data_need_to_check[data_need_to_check.columns[6]] == car_number) & (data_need_to_check['Expense Category'] == selected_expense)]
                 if not data.empty:
                     if len(data['kind data'].unique())>1:
                         st.dataframe(data,width=2500) 
